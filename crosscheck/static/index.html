@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Crosscheck</title>
+<style>
+ body{font:14px system-ui;margin:0;display:grid;grid-template-columns:360px 1fr;height:100vh}
+ #panel{padding:16px;border-right:1px solid #ddd;overflow:auto}
+ #graph{border:0}
+ textarea{width:100%;height:80px} button{margin:4px 0}
+ .alert{background:#fff3f0;border:1px solid #ffb3a0;padding:8px;margin:6px 0;border-radius:6px}
+</style></head>
+<body>
+<div id="panel">
+  <h2>Crosscheck</h2>
+  <h3>Ingest</h3>
+  <label><input type="checkbox" id="live"> live web search</label>
+  <textarea id="sources" placeholder="topic (live) or leave blank to load preset pack"></textarea>
+  <button onclick="ingest()">Ingest</button>
+  <h3>Ask</h3>
+  <textarea id="q" placeholder="ask a question"></textarea>
+  <button onclick="ask()">Ask</button>
+  <pre id="answer"></pre>
+  <h3>Contradictions</h3>
+  <button onclick="loadContradictions()">Refresh</button>
+  <div id="alerts"></div>
+</div>
+<iframe id="graph" src="http://localhost:8000/" width="100%" height="100%"></iframe>
+<script>
+async function ingest(){
+  const live=document.getElementById('live').checked;
+  const txt=document.getElementById('sources').value.trim();
+  const body=live?{live:true,topic:txt}:{live:false,sources:await presetIfEmpty(txt)};
+  await fetch('/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  loadContradictions();
+}
+async function presetIfEmpty(txt){ return txt?JSON.parse(txt):(await (await fetch('/preset')).json()); }
+async function ask(){
+  const question=document.getElementById('q').value;
+  const r=await (await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})})).json();
+  document.getElementById('answer').textContent=JSON.stringify(r,null,2);
+}
+async function loadContradictions(){
+  const list=await (await fetch('/contradictions')).json();
+  document.getElementById('alerts').innerHTML=list.map(c=>
+    `<div class="alert">🚨 <b>${c.entity}</b><br>${c.source_a} (${c.time_a}): ${c.claim_a}<br>${c.source_b} (${c.time_b}): ${c.claim_b}<br><i>${c.explanation}</i></div>`
+  ).join('')||'none yet';
+}
+</script>
+</body></html>
