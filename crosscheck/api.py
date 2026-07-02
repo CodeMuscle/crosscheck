@@ -3,7 +3,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from crosscheck.contradictions import find_contradictions
 from crosscheck.claims import extract_claims
@@ -75,3 +75,11 @@ def contradictions_route():
 def gaps_route():
     nodes, edges = _graph_fn()
     return {"questions": find_gaps(nodes, edges)}
+
+
+@app.get("/graph")
+async def graph_route():
+    """Serve cognee's self-contained graph visualization (kept current on each load)."""
+    import cognee
+
+    return HTMLResponse(await cognee.visualize_graph())

@@ -12,11 +12,10 @@
 
 ## Start
 1. `set -a && source .env && set +a`
-2. Start cognee's graph viz server on :8000:
-   `python -c "import asyncio, cognee; asyncio.run(cognee.start_visualization_server(port=8000))"`
-3. Start Crosscheck API on :8010:
+2. Start Crosscheck API on :8010:
    `uvicorn crosscheck.api:app --port 8010`
-4. Open http://localhost:8010
+3. Open http://localhost:8010 — the graph viz is served in-app at `/graph`
+   (cognee's `visualize_graph()`), so there's no separate viz server to run.
 
 ## Verify the pipeline headless
 `python scripts/live_smoke.py` — prunes, ingests the preset, builds the cognee
@@ -30,6 +29,12 @@ graph, extracts claims from source text, and prints the 50k-vs-10k contradiction
 5. Restart the API; re-open → contradictions still there (persistence).
 
 ## Notes
+- **`/ask` on a small local model:** cognee's search-completion path uses a
+  `str | None` response field that BAML can't map (fails with
+  `Unsupported type for BAML mapping: str | None`), so `/ask` is flaky on
+  llama3.1:8b. It works on a hosted model (Profile B/C). The contradiction card
+  already shows cited sources + dates, so the local demo leads with that + the
+  graph. (Candidate upstream cognee issue.)
 - Contradiction detection reads **claims extracted from raw source text**, not
   the cognee knowledge graph: small local models flatten "50,000 requests per
   second" into a generic node and merge entities across sources, so the

@@ -17,13 +17,19 @@ Show: title card → `docs/architecture.md` diagram (2s hold on the diagram).
 
 ### 0:15–0:35 — The contradiction, in the UI
 Open http://localhost:8010. Click **Ingest** (loads the preset pack); the cognee
-graph fills in on :8000.
+graph fills the right pane (served at `/graph`).
 > "Three dated benchmark reports about a database called FooDB go in. Watch the
 > knowledge graph build."
 
-### 0:35–0:55 — Ask, with citations
-Type: *"What throughput did FooDB reach?"* → answer with source references.
-> "Answers cite their sources — that's the graph working as memory."
+### 0:35–0:55 — Provenance in the graph
+In the embedded graph, point out the **node sets** srcA-2021 / srcB-2022 /
+srcD-2024 — every claim is tagged with where and when it came from.
+> "Everything is tagged with its source and date — that's the graph working as
+> memory, and it's what makes the next part possible."
+
+(The `/ask` cited-answer endpoint works on a hosted model; on a small local model
+cognee's search path is flaky, so the local demo leads with the graph. See the
+RUNBOOK note.)
 
 ### 0:55–1:20 — The hero
 Click **Refresh** under Contradictions → the 🚨 card appears.

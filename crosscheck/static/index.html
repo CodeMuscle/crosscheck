@@ -22,8 +22,11 @@
   <h3>Contradictions</h3>
   <button onclick="loadContradictions()">Refresh</button>
   <div id="alerts"></div>
+  <h3>Gaps to research</h3>
+  <button onclick="loadGaps()">Suggest</button>
+  <ul id="gaps"></ul>
 </div>
-<iframe id="graph" src="http://localhost:8000/" width="100%" height="100%"></iframe>
+<iframe id="graph" src="/graph" width="100%" height="100%"></iframe>
 <script>
 async function ingest(){
   const live=document.getElementById('live').checked;
@@ -43,6 +46,10 @@ async function loadContradictions(){
   document.getElementById('alerts').innerHTML=list.map(c=>
     `<div class="alert">🚨 <b>${c.entity}</b><br>${c.source_a} (${c.time_a}): ${c.claim_a}<br>${c.source_b} (${c.time_b}): ${c.claim_b}<br><i>${c.explanation}</i></div>`
   ).join('')||'none yet';
+}
+async function loadGaps(){
+  const r=await (await fetch('/gaps')).json();
+  document.getElementById('gaps').innerHTML=(r.questions||[]).map(q=>`<li>${q}</li>`).join('')||'<li>none</li>';
 }
 </script>
 </body></html>
