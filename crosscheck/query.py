@@ -4,16 +4,18 @@ import asyncio
 from crosscheck.config import DATASET
 
 
-def ask(question):
+async def _ask_async(question):
     import cognee
     from cognee import SearchType
 
-    result = asyncio.get_event_loop().run_until_complete(
-        cognee.search(
-            question,
-            query_type=SearchType.GRAPH_COMPLETION,
-            datasets=[DATASET],
-            include_references=True,
-        )
+    return await cognee.search(
+        question,
+        query_type=SearchType.GRAPH_COMPLETION,
+        datasets=[DATASET],
+        include_references=True,
     )
+
+
+def ask(question):
+    result = asyncio.run(_ask_async(question))
     return {"answer": result, "references": getattr(result, "references", None)}

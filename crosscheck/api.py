@@ -5,8 +5,8 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
-from crosscheck.graph_access import triplets_from_graph
 from crosscheck.contradictions import find_contradictions
+from crosscheck.claims import extract_claims
 from crosscheck.gaps import find_gaps
 from crosscheck import ingest as ingest_mod
 from crosscheck.query import ask as ask_query
@@ -15,13 +15,29 @@ from crosscheck.preset.benchmarks import PRESET
 app = FastAPI(title="Crosscheck")
 _STATIC = Path(__file__).parent / "static"
 
-# Injectable sources (overridden in tests); default to the live graph + LLM judge.
+# Contradictions read faithful claims extracted from source text (the cognee KG
+# drops numeric values, so it can't feed the engine). Claims are LLM-derived and
+# static for the preset, so cache them — refreshes stay instant.
+_claims_cache = None
+
+
+def _default_claims():
+    global _claims_cache
+    if _claims_cache is None:
+        _claims_cache = extract_claims(PRESET)
+    return _claims_cache
+
+
+# Injectable sources (overridden in tests); default to preset claims + LLM judge.
 _graph_fn = ingest_mod.current_graph
+_claims_fn = _default_claims
 _judge_fn = None  # None -> find_contradictions uses default_llm_judge
 
 
-def set_contradiction_source(graph=None, judge="__keep__"):
-    global _graph_fn, _judge_fn
+def set_contradiction_source(claims=None, graph=None, judge="__keep__"):
+    global _claims_fn, _graph_fn, _judge_fn
+    if claims is not None:
+        _claims_fn = claims
     if graph is not None:
         _graph_fn = graph
     if judge != "__keep__":
@@ -52,9 +68,7 @@ def ask_route(body: dict):
 
 @app.get("/contradictions")
 def contradictions_route():
-    nodes, edges = _graph_fn()
-    tri = triplets_from_graph(nodes, edges)
-    return [asdict(c) for c in find_contradictions(tri, judge=_judge_fn)]
+    return [asdict(c) for c in find_contradictions(_claims_fn(), judge=_judge_fn)]
 
 
 @app.get("/gaps")

@@ -16,11 +16,10 @@ def rank_thin_nodes(nodes, edges, top_n=5):
 def default_llm_ask(name):
     import asyncio
 
-    from cognee.infrastructure.llm.get_llm_client import get_llm_client
+    from cognee.infrastructure.llm.LLMGateway import LLMGateway
 
-    client = get_llm_client()
-    return asyncio.get_event_loop().run_until_complete(
-        client.acreate_structured_output(
+    return asyncio.run(
+        LLMGateway.acreate_structured_output(
             text_input=f"Give one concise research question to learn more about '{name}'.",
             system_prompt="You propose focused research questions.",
             response_model=str,

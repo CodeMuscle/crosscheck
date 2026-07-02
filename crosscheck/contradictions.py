@@ -38,7 +38,7 @@ def default_llm_judge(pair):
     """Ask the LLM whether two sourced claims about the same entity conflict."""
     import asyncio
 
-    from cognee.infrastructure.llm.get_llm_client import get_llm_client
+    from cognee.infrastructure.llm.LLMGateway import LLMGateway
 
     prompt = (
         f"Two sources make claims about '{pair.subject}' ({pair.predicate}).\n"
@@ -47,9 +47,8 @@ def default_llm_judge(pair):
         "Do these directly contradict each other (cannot both be true)? "
         "Answer strictly 'YES: <reason>' or 'NO: <reason>'."
     )
-    client = get_llm_client()
-    reply = asyncio.get_event_loop().run_until_complete(
-        client.acreate_structured_output(
+    reply = asyncio.run(
+        LLMGateway.acreate_structured_output(
             text_input=prompt,
             system_prompt="You judge whether two claims contradict. Be strict.",
             response_model=str,

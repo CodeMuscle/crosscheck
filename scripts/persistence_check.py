@@ -6,7 +6,7 @@ from crosscheck.graph_access import triplets_from_graph
 
 nodes, edges = current_graph()
 tri = triplets_from_graph(nodes, edges)
-foodb = [t for t in tri if t.subject == "FooDB"]
+foodb = [t for t in tri if t.subject.lower() == "foodb"]
 if not foodb:
     print("FAIL: no FooDB claims found in the persisted graph — was the preset ingested?")
     sys.exit(1)
