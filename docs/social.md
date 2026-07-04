@@ -65,7 +65,7 @@ All env-driven. OpenAI/Gemini are drop-in.
 Runs on Ollama, no API key. Contradiction detection, cited memory, and a gap
 finder that tells you what to research next.
 
-Code + write-up: [repo link]
+Code + write-up: https://github.com/CodeMuscle/crosscheck
 Built on @cognee_ ‍
 
 ---
@@ -95,6 +95,6 @@ does the storage, the graph visualization, and cited retrieval.
 Fully offline on Ollama, with OpenAI/Gemini as a drop-in. Code and a 2-minute
 demo below.
 
-[repo link] · Built on cognee
+https://github.com/CodeMuscle/crosscheck · Built on cognee
 
 #AI #KnowledgeGraphs #LLM #opensource #cognee

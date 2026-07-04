@@ -22,12 +22,16 @@
 ### Task 1: Project scaffold + config
 
 **Files:**
+
 - Create: `pyproject.toml`
 - Create: `crosscheck/__init__.py`
 - Create: `crosscheck/config.py`
 - Test: `tests/test_config.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: nothing.
 - Produces: `crosscheck.config.DATASET: str = "research"`; `crosscheck.config.require_llm_key() -> str` (returns the key, raises `RuntimeError` with a clear message if `LLM_API_KEY`/`OPENAI_API_KEY` unset).
 
@@ -58,8 +62,7 @@ def test_require_llm_key_returns_key(monkeypatch):
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_config.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.config'`
+Run: `pytest tests/test_config.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.config'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -111,8 +114,7 @@ def require_llm_key() -> str:
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `uv venv && source .venv/bin/activate && uv pip install -e '.[dev]'` then `pytest tests/test_config.py -v`
-Expected: PASS (3 passed)
+Run: `uv venv && source .venv/bin/activate && uv pip install -e '.[dev]'` then `pytest tests/test_config.py -v`Expected: PASS (3 passed)
 
 - [ ] **Step 5: Commit**
 
@@ -126,11 +128,15 @@ git commit -m "feat: project scaffold + config with LLM key check"
 ### Task 2: Triplet model + graph→triplet extraction
 
 **Files:**
+
 - Create: `crosscheck/model.py`
 - Create: `crosscheck/graph_access.py`
 - Test: `tests/test_graph_access.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: cognee graph shapes (`Node`, `EdgeData`).
 - Produces:
   - `crosscheck.model.Triplet` dataclass: `subject: str`, `predicate: str`, `object: str`, `source: str`, `timestamp: str`.
@@ -165,8 +171,7 @@ def test_triplets_skip_edges_with_unknown_nodes():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_graph_access.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.model'`
+Run: `pytest tests/test_graph_access.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.model'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -232,8 +237,7 @@ def triplets_from_graph(nodes, edges):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_graph_access.py -v`
-Expected: PASS (2 passed)
+Run: `pytest tests/test_graph_access.py -v`Expected: PASS (2 passed)
 
 - [ ] **Step 5: Commit**
 
@@ -247,10 +251,14 @@ git commit -m "feat: Triplet model + pure graph-to-triplet extraction"
 ### Task 3: Contradiction structural pre-filter (spec test #1)
 
 **Files:**
+
 - Create: `crosscheck/contradictions.py`
 - Test: `tests/test_contradictions_structural.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: `crosscheck.model.Triplet`, `CandidatePair`.
 - Produces: `crosscheck.contradictions.structural_candidates(triplets: list[Triplet]) -> list[CandidatePair]` — pure. Groups triplets by `(subject, predicate)`; emits a `CandidatePair` for each pair of triplets in a group that have **different objects** AND **different sources**. Same-source or same-object pairs are not candidates.
 
@@ -291,8 +299,7 @@ def test_ignores_multivalued_property_control():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_contradictions_structural.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.contradictions'`
+Run: `pytest tests/test_contradictions_structural.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.contradictions'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -319,8 +326,7 @@ def structural_candidates(triplets):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_contradictions_structural.py -v`
-Expected: PASS (2 passed)
+Run: `pytest tests/test_contradictions_structural.py -v`Expected: PASS (2 passed)
 
 - [ ] **Step 5: Commit**
 
@@ -334,10 +340,14 @@ git commit -m "feat: structural contradiction pre-filter"
 ### Task 4: Contradiction LLM-judge pipeline
 
 **Files:**
+
 - Modify: `crosscheck/contradictions.py`
 - Test: `tests/test_contradictions_judge.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: `structural_candidates`, `CandidatePair`, `Contradiction`.
 - Produces:
   - `crosscheck.contradictions.judge_candidates(pairs: list[CandidatePair], judge) -> list[Contradiction]` where `judge` is a callable `(CandidatePair) -> tuple[bool, str]` returning `(is_conflict, explanation)`. Emits a `Contradiction` only when `is_conflict` is True.
@@ -374,8 +384,7 @@ def test_drops_pair_when_judge_rejects():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_contradictions_judge.py -v`
-Expected: FAIL — `ImportError: cannot import name 'find_contradictions'`
+Run: `pytest tests/test_contradictions_judge.py -v`Expected: FAIL — `ImportError: cannot import name 'find_contradictions'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -432,8 +441,7 @@ def find_contradictions(triplets, judge=None):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_contradictions_judge.py -v`
-Expected: PASS (2 passed)
+Run: `pytest tests/test_contradictions_judge.py -v`Expected: PASS (2 passed)
 
 > Note: `default_llm_judge`'s exact LLM-client call is verified live in Task 7's smoke run; unit tests inject a stub judge and never hit the network. If `acreate_structured_output`'s signature differs at implementation time, adjust the wrapper — the tested contract (`judge(pair) -> (bool, str)`) does not change.
 
@@ -449,10 +457,14 @@ git commit -m "feat: LLM-judge contradiction confirmation pipeline"
 ### Task 5: Gap finder (spec test #2)
 
 **Files:**
+
 - Create: `crosscheck/gaps.py`
 - Test: `tests/test_gaps.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: cognee graph shapes.
 - Produces:
   - `crosscheck.gaps.rank_thin_nodes(nodes, edges, top_n=5) -> list[str]` — pure. Returns node **names** ranked by ascending degree (fewest edges first), limited to `top_n`. Degree counts edges where the node id is source or target.
@@ -484,8 +496,7 @@ def test_find_gaps_asks_question_per_thin_node():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_gaps.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.gaps'`
+Run: `pytest tests/test_gaps.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.gaps'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -527,8 +538,7 @@ def find_gaps(nodes, edges, ask=None, top_n=5):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_gaps.py -v`
-Expected: PASS (2 passed)
+Run: `pytest tests/test_gaps.py -v`Expected: PASS (2 passed)
 
 - [ ] **Step 5: Commit**
 
@@ -542,12 +552,16 @@ git commit -m "feat: gap finder (thin-node ranking + question generation)"
 ### Task 6: Ingestor + query wrappers + preset pack
 
 **Files:**
+
 - Create: `crosscheck/ingest.py`
 - Create: `crosscheck/query.py`
 - Create: `crosscheck/preset/benchmarks.py`
 - Test: `tests/test_preset.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: `crosscheck.config.DATASET`, cognee `add`/`cognify`/`search`/`get_graph_engine`.
 - Produces:
   - `crosscheck.preset.benchmarks.PRESET: list[dict]` — each `{"id": str, "text": str, "timestamp": str}`. Contains exactly one planted contradiction (a tool's throughput reported differently in two dated sources) plus a same-fact control repeated across sources.
@@ -574,8 +588,7 @@ def test_preset_has_planted_contradiction():
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_preset.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.preset'`
+Run: `pytest tests/test_preset.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.preset'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -671,12 +684,12 @@ def ask(question):
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_preset.py -v`
-Expected: PASS (1 passed)
+Run: `pytest tests/test_preset.py -v`Expected: PASS (1 passed)
 
 - [ ] **Step 5: Live smoke (manual, needs LLM_API_KEY)**
 
 Run:
+
 ```bash
 export LLM_API_KEY=sk-...   # real key
 python -c "
@@ -691,6 +704,7 @@ for c in find_contradictions(tri):
     print('CONTRADICTION:', c.entity, c.claim_a, 'vs', c.claim_b, '->', c.explanation)
 "
 ```
+
 Expected: prints a contradiction on FooDB throughput (50k vs 10k). If node `properties` use different keys than `name`/`source`/`timestamp`, adjust `triplets_from_graph` mapping and re-run — the unit tests stay green because they pass explicit props.
 
 - [ ] **Step 6: Commit**
@@ -705,11 +719,15 @@ git commit -m "feat: ingestor + query wrappers + deterministic preset pack"
 ### Task 7: FastAPI app + panel + cognee viz reuse
 
 **Files:**
+
 - Create: `crosscheck/api.py`
 - Create: `crosscheck/static/index.html`
 - Test: `tests/test_api.py`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: `ingest`, `current_graph`, `triplets_from_graph`, `find_contradictions`, `find_gaps`, `ask`.
 - Produces: FastAPI `app` with routes: `POST /ingest` (body `{"live": bool, "sources"|"topic"}`), `POST /ask` (body `{"question": str}`), `GET /contradictions` (returns confirmed list from the current graph), `GET /gaps`, `GET /` (serves the panel). Contradiction/gap routes accept an injectable judge/ask via app state for testing.
 
@@ -743,8 +761,7 @@ def test_contradictions_endpoint_returns_confirmed(monkeypatch):
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pytest tests/test_api.py -v`
-Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.api'`
+Run: `pytest tests/test_api.py -v`Expected: FAIL — `ModuleNotFoundError: No module named 'crosscheck.api'`
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -874,8 +891,7 @@ def preset_route():
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pytest tests/test_api.py -v`
-Expected: PASS (1 passed). Then run the whole suite: `pytest -v` → all green.
+Run: `pytest tests/test_api.py -v`Expected: PASS (1 passed). Then run the whole suite: `pytest -v` → all green.
 
 - [ ] **Step 5: Commit**
 
@@ -889,12 +905,16 @@ git commit -m "feat: FastAPI app + query panel + contradiction feed"
 ### Task 8: Demo runbook, persistence check (spec test #3), README/blog
 
 **Files:**
+
 - Create: `RUNBOOK.md`
 - Create: `scripts/persistence_check.py`
 - Modify: `README.md`
 - Create: `docs/blog.md`
 
 **Interfaces:**
+
+- [ ] 
+
 - Consumes: everything above.
 - Produces: a documented start sequence, a persistence self-check script, and demo/blog copy.
 
@@ -919,11 +939,13 @@ print(f"OK: {len(foodb)} FooDB claims served from the store without re-ingesting
 - [ ] **Step 2: Run the two-process persistence check**
 
 Run:
+
 ```bash
 export LLM_API_KEY=sk-...
 python -c "from crosscheck.ingest import ingest; from crosscheck.preset.benchmarks import PRESET; ingest(PRESET)"
 python scripts/persistence_check.py   # fresh process, no ingest
 ```
+
 Expected: second process prints `OK: N FooDB claims served from the store...` — proving persistence across sessions.
 
 - [ ] **Step 3: Write the runbook**
@@ -981,6 +1003,7 @@ git commit -m "docs: demo runbook, persistence check, README + blog draft"
 ## Self-Review
 
 **Spec coverage:**
+
 - Ingestor → Task 6. Contradiction engine (A+B) → Tasks 3+4. Gap finder → Task 5. Memory store/persistence → Task 6 (`DATASET`) + Task 8 (check). API/UI + viz reuse → Task 7. Provenance → Task 2 (Triplet.source/timestamp) + Task 6 (`node_set`/timestamps). Demo script → Task 8 runbook. Testing (3 spec checks) → Task 3 (#1), Task 5 (#2), Task 8 (#3). Error handling (skip failed source, judge fallback, key check) → Task 1 key check + noted; **add**: ingest per-source try/except folded into Task 6 Step 3 if a source fails (wrap each `cognee.add` in try/except logging and continue).
 - Live search toggle → Task 6 (`live=True`) + Task 7 route.
 

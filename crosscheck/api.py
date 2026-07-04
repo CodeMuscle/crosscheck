@@ -77,9 +77,27 @@ def gaps_route():
     return {"questions": find_gaps(nodes, edges)}
 
 
+# Two fixes patched into cognee's generated viz HTML (kept here, not forked into
+# cognee): (1) the Node Type legend sits at bottom:20px z-90, the same row as the
+# bottom-center selector at z-100, so they overlap — lift the legend above it;
+# (2) dark-mode edges draw at alpha 0.15 on a near-black canvas → nearly invisible,
+# so bump the edge alphas. Each replace is a no-op if the source string moves.
+_GRAPH_PATCHES = [
+    # (1) overlap: raise legend clear of the bottom-center controls + above them
+    ("#legend{\n  position:fixed;bottom:20px;left:20px;z-index:90;",
+     "#legend{\n  position:fixed;bottom:76px;left:20px;z-index:101;"),
+    # (2) dark-mode edge visibility: default edges and type-colored edges
+    ('"rgba(219,216,216,0.15)"', '"rgba(219,216,216,0.40)"'),
+    ("(_light?0.18:0.24)", "(_light?0.18:0.48)"),
+]
+
+
 @app.get("/graph")
 async def graph_route():
     """Serve cognee's self-contained graph visualization (kept current on each load)."""
     import cognee
 
-    return HTMLResponse(await cognee.visualize_graph())
+    html = await cognee.visualize_graph()
+    for old, new in _GRAPH_PATCHES:
+        html = html.replace(old, new)
+    return HTMLResponse(html)

@@ -54,4 +54,4 @@ persists in cognee's stores, so a fresh process re-answers without re-ingesting.
 
 Runs fully offline on Ollama; an OpenAI or Gemini key is a drop-in alternative.
 
-Repo + 2-min video: (link)
+Repo: https://github.com/CodeMuscle/crosscheck · 2-min video: (link)
