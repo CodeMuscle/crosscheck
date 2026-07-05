@@ -12,3 +12,8 @@ def test_build_leakage_totals_and_ranks():
     assert amounts == [2400.0, 2000.0, 900.0]  # descending
     assert result["findings"][0]["category"] == "Discount not applied"
     assert "entity" in result["findings"][0] and "note" in result["findings"][0]
+
+
+def test_build_leakage_reports_pipeline_stages():
+    result = build_leakage(PRESET_CLAIMS, judge=STUB_JUDGE)
+    assert result["stages"] == {"claims": 6, "candidates": 3, "confirmed": 3}
