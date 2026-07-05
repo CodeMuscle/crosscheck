@@ -52,6 +52,20 @@ A thin gap finder ranks sparsely-connected nodes and asks the LLM for the next
 research question — so the copilot tells you what it's missing. Everything
 persists in cognee's stores, so a fresh process re-answers without re-ingesting.
 
+## The same engine, a second product: Argus
+
+Once the contradiction engine existed, it turned out to be domain-agnostic — "the
+same fact, two sources, two different values" is a shape that shows up far beyond
+research. So we pointed it at money. **Argus** is a spend & contract *leakage*
+auditor: a contract line ("early-pay credit due: $2,400") and an invoice line
+("credit applied: $0") are just a contradiction with a dollar gap. Argus reuses
+Crosscheck's `claims` + `contradictions` code **unchanged** and adds one thing — a
+deterministic dollar-impact number on each finding. On a small demo pack it
+surfaces $5,300 in leakage across three issues, each with the exact documents and
+dates a finance team could act on. Same engine, a completely different problem —
+which is the real point: catching sources that disagree is a primitive, not a
+feature.
+
 Runs fully offline on Ollama; an OpenAI or Gemini key is a drop-in alternative.
 
 Repo: https://github.com/CodeMuscle/crosscheck · 2-min video: (link)

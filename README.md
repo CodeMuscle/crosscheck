@@ -26,6 +26,11 @@ Most AI research tools have two blind spots: they **forget everything between se
 
 > **▶ 2-minute demo:** _(add video link)_ · **Blog write-up:** [docs/blog.md](docs/blog.md)
 
+> **Two apps, one engine.** Crosscheck has a sibling — **Argus**, a spend & contract *leakage* auditor that points the same contradiction engine at your invoices and puts a **dollar figure** on every mismatch ([jump to Argus](#argus--the-same-engine-pointed-at-money)). Run both behind one hub:
+> ```bash
+> uvicorn serve:app --port 8000     # → http://localhost:8000/  ·  /crosscheck/  ·  /argus/
+> ```
+
 ---
 
 ## Why a knowledge graph
@@ -131,9 +136,17 @@ crosscheck/
 ├── graph_access.py   graph read helpers
 ├── preset/           FooDB demo pack (one planted contradiction)
 └── static/           web UI
-docs/                 architecture · demo script · blog · social copy
+argus/                sibling app — spend/contract leakage auditor
+├── preset.py         3 planted cross-source leakage cases
+├── impact.py         deterministic dollar-impact heuristic
+├── audit.py          reuses find_contradictions → ranked findings + total
+├── report.py         CSV export
+├── api.py            FastAPI app (/leakage · /audit · /export.csv)
+└── static/           tabbed UI (Overview · Input · How it works · Ask)
+serve.py              single-port hub — mounts /crosscheck/ + /argus/
+docs/                 architecture · demo scripts · blog · specs · social copy
 scripts/              live_smoke.py · persistence_check.py
-tests/                8 test modules (judge is injectable → offline)
+tests/                11 test modules (judge is injectable → offline)
 ```
 
 ## Testing
@@ -147,6 +160,35 @@ pytest                # judge and graph are injectable, so tests run with no net
 - **`/ask` is flaky on `llama3.1:8b`** — cognee's search-completion path uses a `str | None` field that BAML can't map on a small local model. It works on a hosted model (Profile B/C); the local demo leads with the graph + contradiction card. (Candidate upstream cognee issue.)
 - **Contradiction detection reads extracted claims, not the knowledge graph** — by design; see [How it works](#how-it-works).
 - **Schema & Memory graph views are light-themed** by cognee, independent of the dark Graph view.
+
+## Argus — the same engine, pointed at money
+
+Enterprises quietly lose 1–3% of spend to billing errors and unenforced contract terms: a negotiated discount that never gets applied, an invoice that bills more than the PO, tax charged above the contracted rate. Nobody cross-checks the paperwork line by line.
+
+**Argus** reuses Crosscheck's contradiction engine **unchanged** — a contract line and an invoice line are just "the same fact with two different values" — and adds one thing: a **dollar figure** on each contradiction.
+
+```text
+Discount not applied          $2,400
+  Contract ACME-2023 (2023-01-15): $2,400 early-pay credit due
+  Invoice  INV-8842  (2024-06-03): $0 applied
+  → Contract exceeds invoice by $2,400.
+```
+
+On the built-in demo pack it surfaces **$5,300** across 3 issues. A tabbed UI shows the findings, an **Input** tab to audit your own pasted docs, a **How-it-works** pipeline view, a scripted **Ask** assistant, and one-click **CSV export**.
+
+```bash
+uvicorn serve:app --port 8000        # → http://localhost:8000/argus/
+# or standalone:  uvicorn argus.api:app --port 8020
+```
+
+Design + build notes: [docs/superpowers/specs/2026-07-05-argus-design.md](docs/superpowers/specs/2026-07-05-argus-design.md).
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET`  | `/argus/` | Argus UI (Overview · Input · How it works · Ask) |
+| `GET`  | `/argus/leakage` | Cached demo-pack findings + pipeline stage counts |
+| `POST` | `/argus/audit` | Live leakage audit of pasted docs (`{sources:[...]}`) |
+| `GET`  | `/argus/export.csv` | Findings as a finance-ready CSV |
 
 ## Acknowledgements
 

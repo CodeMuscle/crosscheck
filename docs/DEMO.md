@@ -11,9 +11,9 @@ memory + a hero feature that flags when sources contradict each other.
    ```bash
    set -a && source .env && set +a
    source .venv/bin/activate
-   uvicorn crosscheck.api:app --port 8010
+   uvicorn serve:app --port 8000        # hub: /crosscheck/ + /argus/
    ```
-3. Open **http://localhost:8010**. The graph viz is served in-app at `/graph`.
+3. Open **http://localhost:8000/crosscheck/** (Argus is at `/argus/`). The graph viz is served in-app at `/crosscheck/graph`.
 
 The FooDB demo pack is already ingested and **persists across restarts**, so the
 graph and the contradiction card load immediately — no waiting on camera.
