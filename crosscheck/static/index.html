@@ -228,7 +228,7 @@ button.ghost:hover{background:var(--surface2);filter:none}
   </div>
 </div>
 
-<iframe id="graph" src="/graph"></iframe>
+<iframe id="graph" src="graph"></iframe>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -243,20 +243,20 @@ async function busy(id,fn){const b=$(id);const t=b.textContent;b.disabled=true;b
 async function ingest(){return busy('b-ingest',async()=>{
   const live=$('live').checked, txt=$('sources').value.trim();
   const body=live?{live:true,topic:txt}:{live:false,sources:await presetIfEmpty(txt)};
-  await fetch('/ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  $('graph').src='/graph?t='+Date.now();   // refresh the graph after new memory
+  await fetch('ingest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  $('graph').src='graph?t='+Date.now();   // refresh the graph after new memory
   loadContradictions();
 });}
-async function presetIfEmpty(txt){return txt?JSON.parse(txt):(await (await fetch('/preset')).json());}
+async function presetIfEmpty(txt){return txt?JSON.parse(txt):(await (await fetch('preset')).json());}
 
 async function ask(){return busy('b-ask',async()=>{
   const question=$('q').value;
-  const r=await (await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})})).json();
+  const r=await (await fetch('ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question})})).json();
   $('answer').textContent=typeof r==='string'?r:JSON.stringify(r,null,2);
 });}
 
 async function loadContradictions(){return busy('b-con',async()=>{
-  const list=await (await fetch('/contradictions')).json();
+  const list=await (await fetch('contradictions')).json();
   $('alerts').innerHTML=list.length?list.map(c=>`
     <div class="alert">
       <div class="top">🚨 ${c.entity}</div>
@@ -267,7 +267,7 @@ async function loadContradictions(){return busy('b-con',async()=>{
 });}
 
 async function loadGaps(){return busy('b-gap',async()=>{
-  const r=await (await fetch('/gaps')).json();
+  const r=await (await fetch('gaps')).json();
   $('gaps').innerHTML=(r.questions||[]).map(q=>`<li>${q}</li>`).join('')||'<li class="muted">None.</li>';
 });}
 

@@ -20,7 +20,7 @@
 <div class="cards" id="cards"></div>
 <script>
  const fmt=n=>'$'+Number(n).toLocaleString();
- fetch('/leakage').then(r=>r.json()).then(d=>{
+ fetch('leakage').then(r=>r.json()).then(d=>{
    document.getElementById('total').textContent=fmt(d.total_at_risk);
    document.getElementById('count').textContent=d.findings.length+' issues across your documents';
    document.getElementById('cards').innerHTML=d.findings.map(f=>`
