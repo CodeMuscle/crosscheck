@@ -86,9 +86,13 @@ _GRAPH_PATCHES = [
     # (1) overlap: raise legend clear of the bottom-center controls + above them
     ("#legend{\n  position:fixed;bottom:20px;left:20px;z-index:90;",
      "#legend{\n  position:fixed;bottom:76px;left:20px;z-index:101;"),
-    # (2) dark-mode edge visibility: default edges and type-colored edges
-    ('"rgba(219,216,216,0.15)"', '"rgba(219,216,216,0.40)"'),
-    ("(_light?0.18:0.24)", "(_light?0.18:0.48)"),
+    # (2) dark-mode edge visibility: the node-connecting edges draw at 0.08 alpha
+    # on a near-black canvas → invisible. Bump the idle alpha and the dark
+    # line width. (Hover/search dimming keeps its own 0.02 branch, untouched.)
+    ("var nAlpha=hoveredNode?0.02:hasSearch?0.02:0.08;",
+     "var nAlpha=hoveredNode?0.02:hasSearch?0.02:0.26;"),
+    ("ctx.lineWidth=(_light ? 0.8 : 0.5)/scale;",
+     "ctx.lineWidth=(_light ? 0.8 : 1)/scale;"),
 ]
 
 
